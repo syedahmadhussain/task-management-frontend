@@ -228,13 +228,6 @@ export default function EnhancedTaskList() {
 
   const hasActiveFilters = Object.keys(filters).length > 0 || searchTerm;
 
-  // Sort handlers
-  const handleSort = (field: TaskSort['field']) => {
-    setSort(prev => ({
-      field,
-      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc',
-    }));
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -534,8 +527,8 @@ export default function EnhancedTaskList() {
                             </span>
                           )}
                         </h3>
-                        <span className={`px-2 py-1 text-xs rounded-full border ${getPriorityColor(task.priority)}`}>
-                          {getPriorityLabel(task.priority)}
+                        <span className={`px-2 py-1 text-xs rounded-full border ${getPriorityColor(Number(task.priority))}`}>
+                          {getPriorityLabel(Number(task.priority))}
                         </span>
                       </div>
                       

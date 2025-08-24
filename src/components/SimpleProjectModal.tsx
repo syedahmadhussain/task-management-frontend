@@ -51,16 +51,16 @@ export default function SimpleProjectModal({
       // Admin can select a manager or leave unassigned
       if (data.manager_id) {
         projectData.manager_id = data.manager_id;
-        projectData.assigned_user_id = data.manager_id;
+        // projectData.assigned_user_id = data.manager_id; // Removed as not needed in Project type
       } else {
         // If no manager selected, leave both null for admin to assign later
         projectData.manager_id = null;
-        projectData.assigned_user_id = null;
+        // projectData.assigned_user_id = null; // Removed as not needed in Project type
       }
     } else if (user?.role === 'manager') {
       // Manager can only create projects for themselves
       projectData.manager_id = user.id;
-      projectData.assigned_user_id = user.id;
+      // projectData.assigned_user_id = user.id; // Removed as not needed in Project type
     }
     
     return projectData;
@@ -69,7 +69,12 @@ export default function SimpleProjectModal({
   const createProjectMutation = useMutation({
     mutationFn: (data: typeof formData) => {
       const projectData = prepareProjectData(data);
-      return apiService.createProject(projectData);
+      // Convert null to undefined for API compatibility
+      const apiData = {
+        ...projectData,
+        manager_id: projectData.manager_id || undefined
+      };
+      return apiService.createProject(apiData);
     },
     onSuccess: () => {
       onSave();
@@ -101,12 +106,8 @@ export default function SimpleProjectModal({
         ...data.updates,
         description: data.updates.description || '',
         org_id: user?.org_id || 1,
+        manager_id: data.updates.manager_id || undefined
       };
-      if (data.updates.manager_id) {
-        updateData.manager_id = data.updates.manager_id;
-      } else if (user?.id) {
-        updateData.manager_id = user.id;
-      }
       return apiService.updateProject(data.id, updateData);
     },
     onSuccess: () => {

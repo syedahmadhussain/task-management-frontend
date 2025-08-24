@@ -40,18 +40,24 @@ export default function SimpleTaskModal({
       return apiService.getProjects(1, 100);
     },
     staleTime: 0,
-    cacheTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 5,
   });
 
   // Fetch users for assignment selection
-  const { data: users, isLoading: usersLoading, error: usersError } = useAllUsers();
+  const { data: users } = useAllUsers();
   const usersList = Array.isArray(users) ? users : [];
 
-  const projects = projectsData?.data || [];
+  const projects = (projectsData as any)?.data || [];
 
   const createTaskMutation = useMutation({
     mutationFn: (data: typeof formData) => {
-      return apiService.createTask(data);
+      const taskData = {
+        ...data,
+        project_id: data.project_id || 0, // Use 0 instead of null for API compatibility
+        assigned_to: data.assigned_to || undefined, // Convert null to undefined
+        estimated_time: data.estimated_time?.toString() // Convert to string
+      };
+      return apiService.createTask(taskData);
     },
     onSuccess: () => {
       onSave();
@@ -99,7 +105,7 @@ export default function SimpleTaskModal({
         project_id: task.project_id || null,
         assigned_to: task.assigned_to || null,
         due_date: task.due_date || '',
-        estimated_time: task.estimated_time || null,
+        estimated_time: typeof task.estimated_time === 'string' ? parseFloat(task.estimated_time) || null : task.estimated_time || null,
       });
     } else {
       // Reset form for create mode
@@ -159,21 +165,32 @@ export default function SimpleTaskModal({
       if (user?.role === 'member') {
         // Members can only update specific fields
         allowedUpdates = {
+          ...formData,
+          name: task.name, // Keep existing values for restricted fields
+          description: task.description || '',
+          priority: task.priority,
+          project_id: task.project_id,
+          assigned_to: task.assigned_to || null,
+          due_date: task.due_date || '',
+          // Only allow updates to these fields
           status: formData.status,
-          completion_notes: (formData as any).completion_notes || undefined,
           estimated_time: formData.estimated_time
         };
       } else {
         // Admins and managers can update all fields
         allowedUpdates = {
           ...formData,
-          project_id: formData.project_id || undefined
+          project_id: formData.project_id || null
         };
       }
       
       updateTaskMutation.mutate({
         id: task.id,
-        updates: allowedUpdates,
+        updates: {
+          ...allowedUpdates,
+          assigned_to: allowedUpdates.assigned_to || undefined,
+          estimated_time: allowedUpdates.estimated_time?.toString()
+        } as any,
       });
     }
   };
@@ -371,7 +388,7 @@ export default function SimpleTaskModal({
                          projectsError ? 'Failed to load projects' :
                          projects.length === 0 ? 'No projects available' : 'No project'}
                       </option>
-                      {projects.map((project) => (
+                      {projects.map((project: any) => (
                         <option key={project.id} value={project.id}>
                           {project.name}
                         </option>
@@ -396,7 +413,7 @@ export default function SimpleTaskModal({
                     </label>
                     <div className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-600">
                       {formData.project_id 
-                        ? projects.find(p => p.id === formData.project_id)?.name || 'Unknown Project'
+                        ? projects.find((p: any) => p.id === formData.project_id)?.name || 'Unknown Project'
                         : 'No project'
                       }
                     </div>
