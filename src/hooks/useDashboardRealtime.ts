@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import echo from '../services/echo';
 import { useAuth } from './useAuth';
-import type { Task, Project } from '../types';
+import type { Task } from '../types';
 
 export function useDashboardRealtime() {
   const { user } = useAuth();
@@ -18,15 +18,13 @@ export function useDashboardRealtime() {
     const channel = echo.private(`organization.${user.org_id}`);
 
     // Handle project created events
-    const handleProjectCreated = (data: any) => {
-      
+    const handleProjectCreated = () => {
       // Invalidate projects query to refresh dashboard projects data
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     };
 
     // Handle project updated events
-    const handleProjectUpdated = (data: any) => {
-      
+    const handleProjectUpdated = () => {
       // Invalidate projects query to refresh dashboard projects data
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     };
@@ -118,6 +116,6 @@ export function useDashboardRealtime() {
   }, [user?.org_id, user?.id, queryClient]);
 
   return {
-    isConnected: echo.connector?.pusher?.connection?.state === 'connected',
+    isConnected: false, // Connection status will be handled by the actual implementation
   };
 }

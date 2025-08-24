@@ -3,18 +3,10 @@ import { apiService } from '../services/api';
 import type { Task } from '../types';
 import { isValidStatusTransition } from '../utils/status';
 
-interface OptimisticUpdate {
-  id: number;
-  originalData: Task;
-  newData: Partial<Task>;
-  timestamp: number;
-}
-
 interface TaskMutationOptions {
   onSuccess?: () => void;
   onError?: (error: any) => void;
   optimistic?: boolean;
-  rollbackDelay?: number;
 }
 
 export function useTaskMutations(options: TaskMutationOptions = {}) {
@@ -22,8 +14,7 @@ export function useTaskMutations(options: TaskMutationOptions = {}) {
   const {
     onSuccess,
     onError,
-    optimistic = true,
-    rollbackDelay = 5000
+    optimistic = true
   } = options;
 
   const applyOptimisticUpdate = (taskId: number, newData: Partial<Task>) => {
@@ -41,11 +32,6 @@ export function useTaskMutations(options: TaskMutationOptions = {}) {
     });
   };
 
-  const rollbackOptimisticUpdate = (taskId: number) => {
-    if (!optimistic) return;
-    
-    queryClient.invalidateQueries({ queryKey: ['tasks'] });
-  };
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: Task['status'] }) => {
@@ -65,11 +51,11 @@ export function useTaskMutations(options: TaskMutationOptions = {}) {
         return { previousData: tasksData };
       }
     },
-    onSuccess: (_, { id }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       onSuccess?.();
     },
-    onError: (error, { id }, context) => {
+    onError: (error, _, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(['tasks'], context.previousData);
       }
@@ -95,7 +81,7 @@ export function useTaskMutations(options: TaskMutationOptions = {}) {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       onSuccess?.();
     },
-    onError: (error, id, context) => {
+    onError: (error, _, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(['tasks'], context.previousData);
       }
@@ -118,7 +104,7 @@ export function useTaskMutations(options: TaskMutationOptions = {}) {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       onSuccess?.();
     },
-    onError: (error, { id }, context) => {
+    onError: (error, _, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(['tasks'], context.previousData);
       }
@@ -146,7 +132,7 @@ export function useTaskMutations(options: TaskMutationOptions = {}) {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       onSuccess?.();
     },
-    onError: (error, id, context) => {
+    onError: (error, _, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(['tasks'], context.previousData);
       }
@@ -169,7 +155,7 @@ export function useTaskMutations(options: TaskMutationOptions = {}) {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       onSuccess?.();
     },
-    onError: (error, { id }, context) => {
+    onError: (error, _, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(['tasks'], context.previousData);
       }

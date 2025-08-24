@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiService } from '../../services/api';
-import { useAuth } from '../../hooks/useAuth';
 import { PlusIcon, PencilIcon, EyeIcon, TrashIcon } from '@heroicons/react/24/outline';
 import SimpleTaskModal from './SimpleTaskModal';
 import DeleteConfirmModal from '../DeleteConfirmModal';
@@ -11,8 +10,7 @@ import {
   getPriorityLabel, 
   getAllowedStatusOptions, 
   getStatusLabel, 
-  getStatusColor,
-  getAllStatusOptions 
+  getStatusColor
 } from '../../utils/status';
 import { useTaskMutations } from '../../hooks/useTaskMutations';
 
@@ -24,7 +22,6 @@ export default function SimpleTaskList() {
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
-  const { user } = useAuth();
 
   // Unified task mutations with optimistic updates
   const {

@@ -3,13 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PlusIcon, PencilIcon, EyeIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { apiService } from '../services/api';
 import type { Project } from '../types';
-import { useAuth } from '../hooks/useAuth';
 import { useProjectRealtime } from '../hooks/useProjectRealtime';
 import SimpleProjectModal from './SimpleProjectModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 
 export default function SimpleProjectList() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
   const { isConnected } = useProjectRealtime();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -67,7 +65,7 @@ export default function SimpleProjectList() {
       // Return a context object with the snapshotted value
       return { previousProjects };
     },
-    onError: (err, newProject, context) => {
+    onError: (err: any, _, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(['projects', statusFilter], context?.previousProjects);
       
@@ -78,10 +76,10 @@ export default function SimpleProjectList() {
       const errorMessage = err.response?.data?.message || 'Failed to create project. Please try again.';
       alert(`Error: ${errorMessage}`);
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: () => {
       // Project created successfully
     },
-    onSettled: (data, error, variables, context) => {
+    onSettled: () => {
       // Always refetch after error or success to ensure we have the latest data
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       // Also invalidate the "all" query used by task modal

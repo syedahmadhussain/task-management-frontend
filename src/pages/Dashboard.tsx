@@ -24,14 +24,14 @@ export default function Dashboard() {
   const { isConnected } = useDashboardRealtime();
 
   // Fetch dashboard data with real-time updates
-  const { data: tasks = [], refetch: refetchTasks } = useQuery({
+  const { data: tasks = [] } = useQuery({
     queryKey: ['tasks', { limit: 100 }],
     queryFn: () => apiService.getTasks({}, undefined, 1, 100).then(res => res.data),
     staleTime: 30000, // Consider data fresh for 30 seconds
     refetchInterval: isConnected ? false : 60000, // Auto-refetch every minute if not connected
   });
 
-  const { data: projects = [], refetch: refetchProjects } = useQuery({
+  const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
     queryFn: () => apiService.getProjects().then(res => res.data),
     staleTime: 30000, // Consider data fresh for 30 seconds

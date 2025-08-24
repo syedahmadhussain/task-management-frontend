@@ -24,29 +24,6 @@ const echo = new Echo({
   encrypted: false,
 });
 
-// Connection event handlers
-echo.connector.pusher.connection.bind('error', (error: any) => {
-  // Connection error handling
-});
-
-echo.connector.pusher.connection.bind('connected', () => {
-  // Connected successfully
-});
-
-echo.connector.pusher.connection.bind('disconnected', () => {
-  // Disconnected
-});
-
-echo.connector.pusher.connection.bind('connecting', () => {
-  // Connecting
-});
-
-echo.connector.pusher.connection.bind('unavailable', () => {
-  // Unavailable
-});
-
-echo.connector.pusher.connection.bind('failed', () => {
-  // Connection failed
-});
+// Connection event handlers are handled internally by Laravel Echo
 
 export default echo;

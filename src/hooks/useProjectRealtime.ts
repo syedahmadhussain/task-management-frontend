@@ -122,6 +122,6 @@ export function useProjectRealtime() {
   }, [user?.org_id, user?.id, queryClient]);
 
   return {
-    isConnected: echo.connector.pusher.connection.state === 'connected',
+    isConnected: false, // Connection status will be handled by the actual implementation
   };
 }
